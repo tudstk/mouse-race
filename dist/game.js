@@ -5,6 +5,7 @@ var Game = /** @class */ (function () {
         this.timer = 0;
         this.collectedCount = 0;
         this.failedCount = 0;
+        this.gameOver = false;
     }
     Game.prototype.start = function () {
         this.timer = 0;
@@ -18,10 +19,10 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.generateElements = function () {
         var _this = this;
-        for (var i = 0; i < 12; i++) {
-            this.elements.push(new RandomElement('Collect', 'Green', 20));
-            this.elements.push(new RandomElement('Avoid', 'Red', 20));
-            var changeElement = new RandomElement('Change', 'Red', 20);
+        for (var i = 0; i < 15; i++) {
+            this.elements.push(new RandomElement('Collect', 'Green', this.getRandomSize()));
+            this.elements.push(new RandomElement('Avoid', 'Red', this.getRandomSize()));
+            var changeElement = new RandomElement('Change', 'Red', this.getRandomSize());
             this.elements.push(changeElement);
             changeElement.changeBehavior(function () {
                 _this.collectedCount++;
@@ -29,8 +30,14 @@ var Game = /** @class */ (function () {
             }, function () {
                 _this.failedCount++;
                 _this.updateFailedCount();
-            });
+            }, function () { return _this.gameOver; });
         }
+        setTimeout(function () {
+            _this.gameOver = true;
+        }, 30000);
+    };
+    Game.prototype.getRandomSize = function () {
+        return Math.floor(Math.random() * (40 - 10 + 1) + 10);
     };
     Game.prototype.displayElements = function () {
         var _this = this;
@@ -65,7 +72,7 @@ var Game = /** @class */ (function () {
         var _this = this;
         var intervalId = setInterval(function () {
             _this.timer++;
-            console.log("Time elapsed: " + _this.timer + " seconds");
+            console.log("Time elapsed: " + _this.timer);
             var timerElement = document.getElementById('timer');
             if (_this.timer >= 30) {
                 clearInterval(intervalId);

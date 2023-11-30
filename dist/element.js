@@ -17,10 +17,16 @@ var RandomElement = /** @class */ (function () {
             }
         }
     };
-    RandomElement.prototype.changeBehavior = function (collectedCallback, failedCallback) {
+    RandomElement.prototype.changeBehavior = function (collectedCallback, failedCallback, isGameOver // Callback to check if the game is over
+    ) {
         var _this = this;
         console.log("changing behavior");
-        setTimeout(function () {
+        var intervalId = setInterval(function () {
+            if (isGameOver()) {
+                console.log("is game over? " + isGameOver());
+                clearInterval(intervalId); // Stop the interval if the game is over
+                return;
+            }
             if (_this.type === 'Collect') {
                 _this.type = 'Avoid';
                 _this.color = 'Red';
@@ -32,7 +38,6 @@ var RandomElement = /** @class */ (function () {
             if (_this.currentElement) {
                 _this.render(collectedCallback, failedCallback);
             }
-            _this.changeBehavior(collectedCallback, failedCallback);
         }, 2000);
     };
     RandomElement.prototype.render = function (collectedCallback, failedCallback) {
@@ -45,6 +50,9 @@ var RandomElement = /** @class */ (function () {
                 elementDiv.style.width = this.size + 'px';
                 elementDiv.style.height = this.size + 'px';
                 elementDiv.style.borderRadius = this.type === 'Collect' ? '50%' : '0%';
+                if (this.type === 'Change') {
+                    elementDiv.style.height = '60px';
+                }
                 elementDiv.addEventListener('click', function () {
                     _this.disappear(collectedCallback, failedCallback);
                 });
