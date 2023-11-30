@@ -1,11 +1,12 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "es6",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true
-  }
+    "compilerOptions": {
+      "target": "es6",
+      "module": "es6",
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "strict": true,
+      "moduleResolution": "node",
+      "esModuleInterop": true
+    }
 }
+  

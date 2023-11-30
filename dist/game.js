@@ -7,13 +7,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import RandomElement from './element';
+import { RandomElement } from "./element";
 import { initializeApp } from 'firebase/app';
-import { getDatabase } from 'firebase/database';
 import { getFirestore, collection, addDoc, getDocs, orderBy, query, limit } from 'firebase/firestore';
-import './dotenv';
 const firebaseConfig = {
-    apiKey: process.env.API_KEY,
+    apiKey: "AIzaSyAJV3VIxPK2yz2foZK7Hw4yUtN87wPvlFU",
     authDomain: "mouse-racer.firebaseapp.com",
     projectId: "mouse-racer",
     storageBucket: "mouse-racer.appspot.com",
@@ -23,14 +21,16 @@ const firebaseConfig = {
 };
 const firebaseApp = initializeApp(firebaseConfig);
 const firestore = getFirestore(firebaseApp);
-const database = getDatabase(firebaseApp);
-class Game {
+export class Game {
     constructor() {
         this.elements = [];
         this.timer = 0;
         this.collectedCount = 0;
         this.failedCount = 0;
-        this.gameOver = false;
+        this.collectedGreenChangeables = 0;
+        this.collectedRedChangeables = 0;
+        this.isGameOver = false;
+        this.finalScore = 0;
     }
     start() {
         this.timer = 0;
@@ -42,11 +42,14 @@ class Game {
         this.hideStartButton();
         console.log("salut");
     }
+    getRandomSize() {
+        return Math.floor(Math.random() * (70 - 10 + 1) + 10);
+    }
     generateElements() {
-        for (let i = 0; i < 15; i++) {
-            this.elements.push(new RandomElement('Collect', 'Green', this.getRandomSize()));
-            this.elements.push(new RandomElement('Avoid', 'Red', this.getRandomSize()));
-            const changeElement = new RandomElement('Change', 'Red', this.getRandomSize());
+        for (let i = 0; i < 5; i++) {
+            this.elements.push(new RandomElement('Collect', 'Green', this.getRandomSize(), this));
+            this.elements.push(new RandomElement('Avoid', 'Red', this.getRandomSize(), this));
+            const changeElement = new RandomElement('Change', 'Red', this.getRandomSize(), this);
             this.elements.push(changeElement);
             changeElement.changeBehavior(() => {
                 this.collectedCount++;
@@ -54,14 +57,32 @@ class Game {
             }, () => {
                 this.failedCount++;
                 this.updateFailedCount();
-            }, () => this.gameOver);
+            });
         }
-        setTimeout(() => {
-            this.gameOver = true;
-        }, 20000);
     }
-    getRandomSize() {
-        return Math.floor(Math.random() * (40 - 10 + 1) + 10);
+    endGame() {
+        this.isGameOver = true;
+        const remainingElements = this.elements.filter((element) => element.type === 'Collect' || element.type === 'Change');
+        console.log("REMAINING ELEMENTS: " + remainingElements);
+        if (remainingElements.length === 0) {
+            console.log("SALUUUUT");
+            clearInterval(this.timer);
+            this.finalScore = this.timer;
+            this.hideGameElements();
+            this.displayCounts();
+            const timerElement = document.getElementById('timer');
+            if (timerElement) {
+                timerElement.innerHTML = 'Victory!';
+            }
+        }
+        clearInterval(this.timer);
+        this.hideGameElements();
+        this.displayCounts();
+        const timerElement = document.getElementById('timer');
+        if (timerElement) {
+            timerElement.innerHTML = this.timer + ' seconds';
+        }
+        this.displayLeaderboard();
     }
     displayElements() {
         const elementContainer = document.getElementById('elements-container');
@@ -73,42 +94,36 @@ class Game {
                 this.collectedCount++;
                 this.updateCollectedCount();
             }, () => {
-                this.failedCount++;
-                this.updateFailedCount();
+                console.log("smths");
             });
         });
         console.log("Elements displayed on the screen");
+        const remainingAvoidElements = this.elements.filter((element) => element.type === 'Avoid');
+        if (this.isGameOver && remainingAvoidElements.length > 0) {
+            remainingAvoidElements.forEach((element) => {
+                if (element.currentElement) {
+                    element.currentElement.style.display = 'none';
+                }
+            });
+        }
     }
     updateCollectedCount() {
         const collectedElement = document.getElementById('collected');
         if (collectedElement) {
-            collectedElement.innerHTML = `Green Elements: ${this.collectedCount}`;
+            collectedElement.innerHTML = `COLLECTED: ${this.collectedCount}`;
         }
     }
     updateFailedCount() {
         const failedElement = document.getElementById('failed');
         if (failedElement) {
-            failedElement.innerHTML = `Red Elements: ${this.failedCount}`;
+            failedElement.innerHTML = `FAILED: ${this.failedCount}`;
         }
     }
     startTimer() {
         const intervalId = setInterval(() => {
             this.timer++;
-            console.log("Time elapsed: " + this.timer);
+            console.log("Time elapsed: " + this.timer + " seconds");
             let timerElement = document.getElementById('timer');
-            if (this.timer >= 20) {
-                clearInterval(intervalId);
-                this.hideGameElements();
-                this.displayCounts();
-                if (timerElement) {
-                    timerElement.innerHTML = "Finished";
-                }
-            }
-            else {
-                if (timerElement) {
-                    timerElement.innerHTML = this.timer.toString();
-                }
-            }
         }, 1000);
     }
     hideGameElements() {
@@ -121,18 +136,9 @@ class Game {
     displayCounts() {
         const collectedElement = document.getElementById('collected');
         const failedElement = document.getElementById('failed');
-        const totalScoreElement = document.getElementById('total-score');
-        if (collectedElement && failedElement && totalScoreElement) {
-            collectedElement.style.display = 'block';
-            failedElement.style.display = 'block';
-            totalScoreElement.style.display = 'block';
-            collectedElement.innerHTML = `Green elements: ${this.collectedCount}`;
-            failedElement.innerHTML = `Red elements: ${this.failedCount}`;
-            totalScoreElement.innerHTML = `Total Score: ${(this.collectedCount - this.failedCount) * 1000}`;
-            const nameInputContainer = document.getElementById('name-input-container');
-            if (nameInputContainer) {
-                nameInputContainer.style.display = 'block';
-            }
+        const nameInputContainer = document.getElementById('name-input-container');
+        if (nameInputContainer) {
+            nameInputContainer.style.display = 'block';
         }
     }
     hideStartButton() {
@@ -142,7 +148,7 @@ class Game {
         }
     }
     saveScoreToLeaderboard(name, score) {
-        const leaderboardRef = collection(firestore, 'leaderboard');
+        const leaderboardRef = collection(firestore, 'leaderboard-time');
         const statusElement = document.getElementById('status-message');
         addDoc(leaderboardRef, { name, score })
             .then((docRef) => {
@@ -167,8 +173,8 @@ class Game {
             }
             if (leaderboardContainer) {
                 leaderboardContainer.innerHTML = '';
-                const leaderboardRef = collection(firestore, 'leaderboard');
-                const q = query(leaderboardRef, orderBy('score', 'desc'), limit(3));
+                const leaderboardRef = collection(firestore, 'leaderboard-time');
+                const q = query(leaderboardRef, orderBy('score', 'asc'), limit(3));
                 try {
                     const querySnapshot = yield getDocs(q);
                     querySnapshot.forEach((doc) => {
@@ -191,4 +197,3 @@ class Game {
         });
     }
 }
-export default Game;

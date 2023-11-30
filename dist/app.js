@@ -1,10 +1,13 @@
-import './dotenv';
-import Game from './game';
+import { Game } from './game';
 function submitScore() {
     const playerNameInput = document.getElementById('player-name');
+    const timeElement = document.getElementById('timer');
+    if (timeElement) {
+        console.log("FINALTIMEEERRRR", timeElement.textContent);
+    }
     if (playerNameInput) {
         const playerName = playerNameInput.value;
-        game.saveScoreToLeaderboard(playerName, (game.collectedCount - game.failedCount) * 1000);
+        game.saveScoreToLeaderboard(playerName, game.finalScore);
         game.displayLeaderboard();
     }
 }

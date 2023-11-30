@@ -1,42 +1,57 @@
-import './dotenv';
-class RandomElement {
-    constructor(type, color, size) {
+export class RandomElement {
+    constructor(type, color, size, gameInstance) {
         this.type = type;
         this.color = color;
         this.size = size;
         this.currentElement = null;
+        this.game = gameInstance;
     }
-    disappear(collectedCallback, failedCallback) {
+    disappear(collectedCallback) {
         if (this.currentElement) {
-            this.currentElement.style.display = 'none';
-            if (this.type === 'Collect') {
+            if (this.color === 'Green') {
+                this.currentElement.style.display = 'none';
                 collectedCallback();
+                const index = this.game.elements.indexOf(this);
+                if (index !== -1) {
+                    this.game.elements.splice(index, 1);
+                    if (this.type === 'Change') {
+                        this.game.collectedGreenChangeables++;
+                    }
+                }
             }
-            else if (this.type === 'Avoid') {
-                failedCallback();
+            console.log(`Remaining elements on the screen: ${this.game.elements.length}`);
+            console.log(`Collected Green Changeables: ${this.game.collectedGreenChangeables}`);
+            console.log(`Collected Red Changeables: ${this.game.collectedRedChangeables}`);
+            // Check if all remaining elements are of type 'Avoid'
+            const remainingAvoidElements = this.game.elements.filter((element) => element.type === 'Avoid');
+            if (remainingAvoidElements.length === this.game.elements.length) {
+                console.log("GAME OVER");
+                this.game.isGameOver = true;
+                this.game.endGame();
             }
         }
     }
-    changeBehavior(collectedCallback, failedCallback, isGameOver) {
-        console.log("I'M CHANGING!!");
-        const intervalId = setInterval(() => {
-            if (isGameOver()) {
-                console.log("is game over? " + isGameOver());
-                clearInterval(intervalId);
-                return;
-            }
-            if (this.type === 'Collect') {
-                this.type = 'Avoid';
+    changeBehavior(collectedCallback, failedCallback) {
+        const changeInterval = setInterval(() => {
+            if (this.color === 'Green') {
                 this.color = 'Red';
             }
             else {
-                this.type = 'Collect';
                 this.color = 'Green';
             }
             if (this.currentElement) {
-                this.render(collectedCallback, failedCallback);
+                this.renderChanged();
             }
-        }, 2000);
+        }, 1500);
+        setTimeout(() => {
+            clearInterval(changeInterval);
+        }, 60000); // 1min
+    }
+    renderChanged() {
+        if (this.currentElement) {
+            this.currentElement.style.backgroundColor = this.color;
+            // this.currentElement.style.height = '60px';
+        }
     }
     render(collectedCallback, failedCallback) {
         const elementContainer = document.body;
@@ -46,12 +61,12 @@ class RandomElement {
                 elementDiv.className = 'game-element';
                 elementDiv.style.width = this.size + 'px';
                 elementDiv.style.height = this.size + 'px';
-                elementDiv.style.borderRadius = this.type === 'Collect' ? '50%' : '0%';
+                elementDiv.style.borderRadius = this.color === 'Green' ? '50%' : '0%';
                 if (this.type === 'Change') {
                     elementDiv.style.height = '60px';
                 }
                 elementDiv.addEventListener('click', () => {
-                    this.disappear(collectedCallback, failedCallback);
+                    this.disappear(collectedCallback);
                 });
                 elementContainer.appendChild(elementDiv);
                 this.currentElement = elementDiv;
@@ -65,4 +80,3 @@ class RandomElement {
         }
     }
 }
-export default RandomElement;

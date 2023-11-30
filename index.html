@@ -11,32 +11,33 @@
 <body>
   <div class="game-container">
     <button class="start-button">Start</button>
-    <div id="stats-section">
-      <div id="timer-container">Time: <span id="timer">0</span></div>
-      <div id="total-score">Total Score: 0</div>
-      <div id="collected">Green elements: 0</div>
-      <div id="failed">Red elements: 0</div>
-    </div>
+    <div id="container">
+        <div id="timer-container">Time: <span id="timer">...</span> </div>
+        </div>
     <div id="name-input-container" style="display: none;">
-      <label for="player-name">Enter Your Name:</label>
-      <input type="text" id="player-name" />
-      <button id="submit-score">Submit</button>
-      <p id="status-message"></p>
-    </div>
+        <label for="player-name">Enter Your Name:</label>
+        <input type="text" id="player-name" />
+        <button id="submit-score">Submit</button>
+        <p id="status-message"></p>
+      </div>
     <div id="leaderboard-container">
-      <h2 id="leaderboard-heading" style="display: none;">Leaderboard</h2>
-      <ul id="leaderboard-list" style="list-style-type:none"></ul>
-    </div>
+        <h2 id="leaderboard-heading" style="display: none;">Leaderboard</h2>
+        <ul id="leaderboard-list" style="list-style-type:none"></ul>
+      </div>
     <div id="elements-container"></div>
+   
+
   </div>
-  
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 
-  <script src="./dist/app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    
   <script src="dist/bundle.js"></script>
-
+  <script type="module" src="./dist/element.js"></script>
+  <script type="module" src="./dist/game.js"></script>
+  <script type="module" src="./dist/app.js"></script>
+  
 </body>
 
 </html>
