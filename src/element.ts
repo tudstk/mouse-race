@@ -92,7 +92,7 @@ export class RandomElement {
     
           if (this.currentElement) {
             this.currentElement.style.display = 'block';
-            this.currentElement.style.backgroundColor = this.color;
+            this.currentElement.style.backgroundColor = this.color === 'Green' ? '#81d383' : '#c74856';
     
             const randomTop = Math.floor(
               Math.random() * (document.body.offsetHeight - this.size)
@@ -108,7 +108,7 @@ export class RandomElement {
       }
     renderChanged() {
       if (this.currentElement) {
-        this.currentElement.style.backgroundColor = this.color;
+        this.currentElement.style.backgroundColor = this.color === 'Green' ? '#81d383' : '#c74856';
       }
     }
   }
