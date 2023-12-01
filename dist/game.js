@@ -13,6 +13,7 @@ export class Game {
     constructor() {
         this.elements = [];
         this.timer = 0;
+        this.timerInterval = 0;
         this.collectedCount = 0;
         this.failedCount = 0;
         this.isGameOver = false;
@@ -42,16 +43,13 @@ export class Game {
     }
     endGame() {
         this.isGameOver = true;
+        clearInterval(this.timerInterval); // Clear the timer interval
         const remainingElements = this.elements.filter((element) => element.type === 'Collect' || element.type === 'Change');
         if (remainingElements.length === 0) {
-            clearInterval(this.timer);
             this.finalScore = this.timer;
             this.hideGameElements();
             this.displayInput();
         }
-        clearInterval(this.timer);
-        this.hideGameElements();
-        this.displayInput();
         const timerElement = document.getElementById('timer');
         if (timerElement) {
             timerElement.innerHTML = this.timer + ' seconds';
@@ -76,8 +74,13 @@ export class Game {
         }
     }
     startTimer() {
-        const intervalId = setInterval(() => {
+        const timerElement = document.getElementById('timer');
+        this.timer = 0;
+        this.timerInterval = setInterval(() => {
             this.timer++;
+            if (timerElement) {
+                timerElement.innerHTML = this.timer + ' seconds';
+            }
         }, 1000);
     }
     hideGameElements() {
