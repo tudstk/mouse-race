@@ -1,14 +1,10 @@
 import { Game } from './game';
 function submitScore() {
     const playerNameInput = document.getElementById('player-name');
-    const timeElement = document.getElementById('timer');
-    if (timeElement) {
-        console.log("FINALTIMEEERRRR", timeElement.textContent);
-    }
     if (playerNameInput) {
         const playerName = playerNameInput.value;
-        game.saveScoreToLeaderboard(playerName, game.finalScore);
-        game.displayLeaderboard();
+        game.firebaseManager.saveScoreToLeaderboard(playerName, game.finalScore);
+        game.firebaseManager.displayLeaderboard();
     }
 }
 const submitButtonElement = document.getElementById("submit-score");
